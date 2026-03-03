@@ -1,14 +1,14 @@
 # TopDown_Mechanics
 
-> A Unity 6 third-person/first-person hybrid shooter — inspired by the perspective-shifting gameplay of **Rainbow Six Vegas**
+> A Unity 6 third-person/first-person hybrid shooter inspired by the perspective-shifting gameplay of **Rainbow Six Vegas**
 
-![Gameplay Preview](docs/gifs/gameplay_preview.gif)
+![Gameplay Preview](docs/gifs/Unity_R6Nir8YDUr.gif)
 
 ---
 
 ## Concept
 
-Most shooters pick a lane — you're either top-down or first-person. **TopDown_Mechanics** doesn't.
+Most shooters pick a lane you're either top-down or first-person. **This Project** doesn't.
 
 Movement, traversal, and melee happen in a **top-down third-person view**. The moment you raise a gun to aim, the camera **smoothly blends into first-person** — putting you directly behind the sights. Release aim, and you're pulled back out into the tactical overview.
 
@@ -19,13 +19,13 @@ The result is a game that feels strategic and spatial when moving, and tense and
 ## Showcase
 
 ### Perspective Switch
-![Perspective Switch](docs/gifs/perspective_switch.gif)
+![Perspective Switch](docs/gifs/PerspectiveSwitch.gif)
 
 ### Raycast Shooting & Line Trace
 ![Shooting](docs/gifs/shooting_linetrace.gif)
 
 ### Top-Down Movement
-![Movement](docs/gifs/topdown_movement.gif)
+![Movement](docs/gifs/Movement.gif)
 
 ---
 
@@ -33,8 +33,6 @@ The result is a game that feels strategic and spatial when moving, and tense and
 
 ### 🎥 Perspective System
 Cinemachine-driven blend between two camera rigs — top-down third-person for movement, first-person for aiming. Managed by a central `CameraManager` with smooth lerp transition.
-
-![Camera Rig Setup](docs/images/camera_rig.png)
 
 ### 🏃 Player Movement
 Rigidbody-based movement with smooth acceleration and deceleration. Character rotates to face the mouse cursor in top-down mode. Speed automatically reduces when entering FPS aim mode.
