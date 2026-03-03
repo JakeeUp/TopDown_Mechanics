@@ -8,7 +8,7 @@
 
 ## Concept
 
-Most shooters pick a lane you're either top-down or first-person. **This Project** doesn't.
+Most shooting games pick a lane you're either top-down/first-person or third person. **This Project** is a mix of top down and first person.
 
 Movement, traversal, and melee happen in a **top-down third-person view**. The moment you raise a gun to aim, the camera **smoothly blends into first-person** putting you directly behind the sights. Release aim, and you're pulled back out into the tactical overview.
 
