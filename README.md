@@ -10,7 +10,7 @@
 
 Most shooters pick a lane you're either top-down or first-person. **This Project** doesn't.
 
-Movement, traversal, and melee happen in a **top-down third-person view**. The moment you raise a gun to aim, the camera **smoothly blends into first-person** — putting you directly behind the sights. Release aim, and you're pulled back out into the tactical overview.
+Movement, traversal, and melee happen in a **top-down third-person view**. The moment you raise a gun to aim, the camera **smoothly blends into first-person** putting you directly behind the sights. Release aim, and you're pulled back out into the tactical overview.
 
 The result is a game that feels strategic and spatial when moving, and tense and grounded when shooting.
 
@@ -32,7 +32,7 @@ The result is a game that feels strategic and spatial when moving, and tense and
 ## Systems
 
 ###  Perspective System
-Cinemachine-driven blend between two camera rigs — top-down third-person for movement, first-person for aiming. Managed by a central `CameraManager` with smooth lerp transition.
+Cinemachine-driven blend between two camera rigs top-down third-person for movement, first-person for aiming. Managed by a central `CameraManager` with smooth lerp transition.
 
 ###  Player Movement
 Rigidbody-based movement with smooth acceleration and deceleration. Character rotates to face the mouse cursor in top-down mode. Speed automatically reduces when entering FPS aim mode.
