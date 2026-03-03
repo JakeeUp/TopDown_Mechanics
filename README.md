@@ -31,13 +31,13 @@ The result is a game that feels strategic and spatial when moving, and tense and
 
 ## Systems
 
-### 🎥 Perspective System
+###  Perspective System
 Cinemachine-driven blend between two camera rigs — top-down third-person for movement, first-person for aiming. Managed by a central `CameraManager` with smooth lerp transition.
 
-### 🏃 Player Movement
+###  Player Movement
 Rigidbody-based movement with smooth acceleration and deceleration. Character rotates to face the mouse cursor in top-down mode. Speed automatically reduces when entering FPS aim mode.
 
-### 🔫 Weapon System
+###  Weapon System
 Raycast-based shooting with semi-auto and full-auto fire mode toggle. Includes procedural Aim Down Sights (ADS) via weapon mesh lerp, muzzle-origin line trace visualization, and per-shot recoil with recovery curve.
 
 ![ADS](docs/gifs/ads.gif)
