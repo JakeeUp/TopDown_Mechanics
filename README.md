@@ -22,7 +22,7 @@ The result is a game that feels strategic and spatial when moving, and tense and
 ![Perspective Switch](docs/gifs/PerspectiveSwitch.gif)
 
 ### Raycast Shooting & Line Trace
-![Shooting](docs/gifs/shooting_linetrace.gif)
+![Shooting](docs/gifs/LineTraceShooting.gif)
 
 ### Top-Down Movement
 ![Movement](docs/gifs/Movement.gif)
