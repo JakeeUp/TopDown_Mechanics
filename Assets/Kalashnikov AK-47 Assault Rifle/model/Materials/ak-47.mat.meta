@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: fcf46f4350cf927469066881a5d9ab08
+timeCreated: 1511984853
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 106373
+  packageName: Kalashnikov AK-47 Assault Rifle
+  packageVersion: 1.0
+  assetPath: Assets/Kalashnikov AK-47 Assault Rifle/model/Materials/ak-47.mat
+  uploadId: 216152

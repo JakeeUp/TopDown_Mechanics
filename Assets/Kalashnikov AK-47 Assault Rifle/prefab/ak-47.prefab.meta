@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2c19217254e2e0541a0e0b13ca9ecb18
+timeCreated: 1511986763
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 106373
+  packageName: Kalashnikov AK-47 Assault Rifle
+  packageVersion: 1.0
+  assetPath: Assets/Kalashnikov AK-47 Assault Rifle/prefab/ak-47.prefab
+  uploadId: 216152
