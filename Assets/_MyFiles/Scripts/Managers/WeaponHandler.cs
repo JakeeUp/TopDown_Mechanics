@@ -4,9 +4,7 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// Handles raycast-based shooting in first-person mode.
 /// Supports semi-auto and full-auto fire mode toggle.
-/// Includes procedural Aim Down Sights (ADS) by lerping the weapon mesh
-/// to a defined ADS position when aiming.
-/// Only fires when player is in FPS/aiming mode.
+/// Includes procedural ADS, muzzle-origin line trace, and console hit logging.
 /// </summary>
 public class WeaponHandler : MonoBehaviour
 {
@@ -22,6 +20,11 @@ public class WeaponHandler : MonoBehaviour
     [Header("Raycast")]
     [SerializeField] private Camera fpsCamera;
     [SerializeField] private LayerMask hitLayers;
+
+    [Header("Line Trace Visual")]
+    [SerializeField] private Transform muzzlePoint;
+    [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private float lineVisibleDuration = 0.05f;
 
     [Header("Effects")]
     [SerializeField] private ParticleSystem muzzleFlash;
@@ -52,6 +55,7 @@ public class WeaponHandler : MonoBehaviour
 
     private Vector3 recoilOffset;
     private Vector3 currentWeaponPosition;
+    private float lineTimer = 0f;
 
     private CameraManager cameraManager;
 
@@ -71,6 +75,9 @@ public class WeaponHandler : MonoBehaviour
             weaponMesh.localPosition = hipPosition;
             currentWeaponPosition = hipPosition;
         }
+
+        if (lineRenderer != null)
+            lineRenderer.enabled = false;
     }
 
     private void Update()
@@ -78,6 +85,7 @@ public class WeaponHandler : MonoBehaviour
         HandleFullAuto();
         HandleRecoilRecovery();
         HandleADS();
+        HandleLineTimer();
     }
 
     // -------------------------------------------------------------------------
@@ -86,7 +94,6 @@ public class WeaponHandler : MonoBehaviour
 
     private void HandleFullAuto()
     {
-        // Must be holding trigger AND in FPS mode AND full auto
         if (currentFireMode == FireMode.FullAuto && isTriggerHeld && isAiming)
         {
             if (Time.time >= nextFireTime)
@@ -107,10 +114,14 @@ public class WeaponHandler : MonoBehaviour
         ApplyRecoil();
 
         Ray ray = fpsCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Vector3 endPoint;
 
         if (Physics.Raycast(ray, out RaycastHit hit, range, hitLayers))
         {
-            Debug.Log($"Hit: {hit.collider.gameObject.name} | Damage: {damage}");
+            endPoint = hit.point;
+
+            // Log hit info to console
+            Debug.Log($"[HIT] {hit.collider.gameObject.name} | DMG: {damage} | Distance: {hit.distance:F1}m | Point: {hit.point}");
 
             if (bulletImpactPrefab != null)
             {
@@ -125,10 +136,45 @@ public class WeaponHandler : MonoBehaviour
             // Uncomment when HealthComponent exists:
             // hit.collider.GetComponent<HealthComponent>()?.TakeDamage(damage);
         }
+        else
+        {
+            endPoint = ray.origin + ray.direction * range;
+            Debug.Log($"[MISS] No target in range ({range}m)");
+        }
+
+        DrawLineTrace(endPoint);
     }
 
     // -------------------------------------------------------------------------
-    // Aim Down Sights
+    // Line Trace Visual
+    // -------------------------------------------------------------------------
+
+    private void DrawLineTrace(Vector3 endPoint)
+    {
+        if (lineRenderer == null) return;
+
+        Vector3 startPoint = muzzlePoint != null
+            ? muzzlePoint.position
+            : fpsCamera.transform.position;
+
+        lineRenderer.enabled = true;
+        lineRenderer.SetPosition(0, startPoint);
+        lineRenderer.SetPosition(1, endPoint);
+        lineTimer = lineVisibleDuration;
+    }
+
+    private void HandleLineTimer()
+    {
+        if (lineTimer > 0f)
+        {
+            lineTimer -= Time.deltaTime;
+            if (lineTimer <= 0f && lineRenderer != null)
+                lineRenderer.enabled = false;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // ADS
     // -------------------------------------------------------------------------
 
     private void HandleADS()
@@ -169,16 +215,15 @@ public class WeaponHandler : MonoBehaviour
     {
         isTriggerHeld = value.isPressed;
 
-        // Semi-auto: only fire once on press, and only if in FPS mode
         if (currentFireMode == FireMode.SemiAuto && value.isPressed && isAiming)
             Shoot();
     }
 
     private void OnAim(InputValue value)
-{
-    isAiming = value.isPressed;
-    if (!isAiming) isTriggerHeld = false; // force reset trigger on aim release
-}
+    {
+        isAiming = value.isPressed;
+        if (!isAiming) isTriggerHeld = false;
+    }
 
     private void OnSwitchFireMode(InputValue value)
     {
@@ -188,7 +233,7 @@ public class WeaponHandler : MonoBehaviour
             ? FireMode.FullAuto
             : FireMode.SemiAuto;
 
-        Debug.Log($"Fire Mode: {currentFireMode}");
+        Debug.Log($"[FIRE MODE] Switched to: {currentFireMode}");
     }
 
     // -------------------------------------------------------------------------

@@ -1,0 +1,49 @@
+
+FOLDER CONTENTS
+
+Animations_________________________________
+
+Contains animations in humanoid format that 
+can be used in this model or any other 
+model with a humanoid avatar.
+
+Animator Controllers________________________
+
+Contains an example Animator Controller used 
+on the character. You can replace it with an 
+AC of your own creation.
+
+Materials____________________________________
+
+In addition to the Standard materials, both the 
+Pistol and Action Heroine materials, there are 
+other example materials (Unlit and Vertex Lit) 
+that are more suitable with the retro look 
+of the old games.
+
+Models_______________________________________
+
+Contains the original FBX format models of the 
+character and pistol.
+
+Prefab_______________________________________
+
+Contains character and weapon prefab files, you 
+can create other prefab variations that 
+suit your needs.
+
+Sample Scene_________________________________
+
+Contains an example scene with the character model, 
+with the pistol positioned in the hand and 
+animations running. You can modify the 
+model from this scene, create it from
+FBX files or from prefabs.
+
+Textures_____________________________________
+
+Contains the pistol textures, with 64x64 pixels, 
+and the character textures, in versions 256x256 
+pixels with dithering, 1024x1024 pixels with 
+dithering and the original version with 
+1024x1024 fully colored

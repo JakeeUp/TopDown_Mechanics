@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 12cf32fc53dc41541b83c51024b5ba4a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 288413
+  packageName: Action Heroine - Retro Style
+  packageVersion: 1.0
+  assetPath: Assets/Action Heroine/Animator Controllers/Action_Heroine_AC.controller
+  uploadId: 672759
