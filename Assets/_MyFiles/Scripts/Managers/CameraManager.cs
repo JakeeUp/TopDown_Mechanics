@@ -122,11 +122,11 @@ public class CameraManager : MonoBehaviour
 
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
-        // Horizontal — rotate the player body left/right
+        // Horizontal — rotate player body
         float horizontalRotation = mouseDelta.x * mouseSensitivity * Time.deltaTime;
         playerBody.Rotate(Vector3.up * horizontalRotation);
 
-        // Vertical — tilt the FPS pivot up/down, clamped to avoid flipping
+        // Vertical — tilt FP_Pivot up and down
         verticalRotation -= mouseDelta.y * mouseSensitivity * Time.deltaTime;
         verticalRotation = Mathf.Clamp(verticalRotation, verticalClampMin, verticalClampMax);
 
