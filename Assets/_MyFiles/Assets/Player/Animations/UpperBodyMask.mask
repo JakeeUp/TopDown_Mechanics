@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UpperBodyMask
+  m_Mask: 00000000010000000100000000000000000000000100000001000000010000000100000000000000000000000100000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: Armature
+    m_Weight: 1
+  - m_Path: Armature/hips
+    m_Weight: 1
+  - m_Path: Armature/hips/spine
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/neck
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/neck/head
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/neck/head/head_end
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/index.l
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/index.l/index.l.001
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/index.l/index.l.001/index.l.002
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/index.l/index.l.001/index.l.002/index.l.002_end
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/middle.l
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/middle.l/middle.l.001
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/middle.l/middle.l.001/middle.l.002
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/middle.l/middle.l.001/middle.l.002/middle.l.002_end
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/thumb.l
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/thumb.l/thumb.l.001
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/thumb.l/thumb.l.001/thumb.l.002
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.l/upperarm.l/lowerarm.l/hand.l/thumb.l/thumb.l.001/thumb.l.002/thumb.l.002_end
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/index.r
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/index.r/index.r.001
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/index.r/index.r.001/index.r.002
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/index.r/index.r.001/index.r.002/index.r.002_end
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/middle.r
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/middle.r/middle.r.001
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/middle.r/middle.r.001/middle.r.002
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/middle.r/middle.r.001/middle.r.002/middle.r.002_end
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/thumb.r
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/thumb.r/thumb.r.001
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/thumb.r/thumb.r.001/thumb.r.002
+    m_Weight: 1
+  - m_Path: Armature/hips/spine/spine1/spine2/shoulder.r/upperarm.r/lowerarm.r/hand.r/thumb.r/thumb.r.001/thumb.r.002/thumb.r.002_end
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.l
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.l/calf.l
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.l/calf.l/foot.l
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.l/calf.l/foot.l/toe.l
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.l/calf.l/foot.l/toe.l/toe.l_end
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.r
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.r/calf.r
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.r/calf.r/foot.r
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.r/calf.r/foot.r/toe.r
+    m_Weight: 1
+  - m_Path: Armature/hips/thigh.r/calf.r/foot.r/toe.r/toe.r_end
+    m_Weight: 1
+  - m_Path: heroine
+    m_Weight: 1

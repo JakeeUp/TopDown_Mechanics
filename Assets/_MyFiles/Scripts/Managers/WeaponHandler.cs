@@ -37,10 +37,10 @@ public class WeaponHandler : MonoBehaviour
     [SerializeField] private float recoilSpeed = 10f;
     [SerializeField] private float recoilRecoverySpeed = 6f;
 
-    [Header("Aim Down Sights")]
-    [SerializeField] private Vector3 hipPosition = new Vector3(0.3f, -0.3f, 0.5f);
-    [SerializeField] private Vector3 adsPosition = new Vector3(0f, -0.2f, 0.4f);
-    [SerializeField] private float adsSpeed = 10f;
+    // [Header("Aim Down Sights")]
+    // [SerializeField] private Vector3 hipPosition = new Vector3(0.3f, -0.3f, 0.5f);
+    // [SerializeField] private Vector3 adsPosition = new Vector3(0f, -0.2f, 0.4f);
+    // [SerializeField] private float adsSpeed = 10f;
 
     // -------------------------------------------------------------------------
     // Private State
@@ -72,8 +72,8 @@ public class WeaponHandler : MonoBehaviour
 
         if (weaponMesh != null)
         {
-            weaponMesh.localPosition = hipPosition;
-            currentWeaponPosition = hipPosition;
+            // weaponMesh.localPosition = hipPosition;
+            // currentWeaponPosition = hipPosition;
         }
 
         if (lineRenderer != null)
@@ -84,7 +84,7 @@ public class WeaponHandler : MonoBehaviour
     {
         HandleFullAuto();
         HandleRecoilRecovery();
-        HandleADS();
+       // HandleADS();
         HandleLineTimer();
     }
 
@@ -112,6 +112,7 @@ public class WeaponHandler : MonoBehaviour
             muzzleFlash.Play();
 
         ApplyRecoil();
+        GetComponent<PlayerAnimator>()?.TriggerShoot();
 
         Ray ray = fpsCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         Vector3 endPoint;
@@ -177,20 +178,20 @@ public class WeaponHandler : MonoBehaviour
     // ADS
     // -------------------------------------------------------------------------
 
-    private void HandleADS()
-    {
-        if (weaponMesh == null) return;
+    // private void HandleADS()
+    // {
+    //     if (weaponMesh == null) return;
 
-        Vector3 targetPosition = isAiming ? adsPosition : hipPosition;
+    //     Vector3 targetPosition = isAiming ? adsPosition : hipPosition;
 
-        currentWeaponPosition = Vector3.Lerp(
-            currentWeaponPosition,
-            targetPosition,
-            adsSpeed * Time.deltaTime
-        );
+    //     currentWeaponPosition = Vector3.Lerp(
+    //         currentWeaponPosition,
+    //         targetPosition,
+    //         adsSpeed * Time.deltaTime
+    //     );
 
-        weaponMesh.localPosition = currentWeaponPosition + recoilOffset;
-    }
+    //     weaponMesh.localPosition = currentWeaponPosition + recoilOffset;
+    // }
 
     // -------------------------------------------------------------------------
     // Recoil
