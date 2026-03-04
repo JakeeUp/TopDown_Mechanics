@@ -40,7 +40,6 @@ Rigidbody-based movement with smooth acceleration and deceleration. Character ro
 ###  Weapon System
 Raycast-based shooting with semi-auto and full-auto fire mode toggle. Includes procedural Aim Down Sights (ADS) via weapon mesh lerp, muzzle-origin line trace visualization, and per-shot recoil with recovery curve.
 
-![ADS](docs/gifs/ads.gif)
 
 ---
 
