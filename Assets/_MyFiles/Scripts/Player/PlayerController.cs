@@ -121,7 +121,7 @@ public class PlayerController : MonoBehaviour
 
             if (direction.sqrMagnitude > 0.001f)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(-direction);
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
                 transform.rotation = Quaternion.Slerp(
                     transform.rotation,
                     targetRotation,
