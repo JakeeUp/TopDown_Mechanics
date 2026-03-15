@@ -64,7 +64,7 @@ public class FlashlightController : MonoBehaviour
         else
         {
             flashlightPos = flashlightHolder.position;
-            flashlightDir = flashlightHolder.forward;
+            flashlightDir = -flashlightHolder.forward;
         }
 
         Shader.SetGlobalVector(FlashlightPosID, flashlightPos);
