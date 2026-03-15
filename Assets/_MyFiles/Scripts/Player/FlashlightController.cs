@@ -66,7 +66,7 @@ public class FlashlightController : MonoBehaviour
         {
             // Top-down mode: use the same direction PlayerController rotates toward
             flashlightPos = playerBody.position + Vector3.up * 1.0f;
-            flashlightDir = playerBody.forward;
+            flashlightDir = -playerBody.forward;
         }
 
         Shader.SetGlobalVector(FlashlightPosID, flashlightPos);
