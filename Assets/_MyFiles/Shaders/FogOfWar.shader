@@ -32,7 +32,7 @@ Shader "Custom/FogOfWar"
             SAMPLER(sampler_MainTex);
 
             // Set by FogOfWarPass.cs
-            float4x4 _InvViewProjMatrix;
+            float4x4 _FogOfWar_InvVPMatrix;
 
             // Set by FlashlightController.cs
             float3 _FlashlightPos;
@@ -73,7 +73,7 @@ Shader "Custom/FogOfWar"
                 #endif
 
                 // Transform to world space
-                float4 worldPos = mul(_InvViewProjMatrix, clipPos);
+                float4 worldPos = mul(_FogOfWar_InvVPMatrix, clipPos);
                 return worldPos.xyz / worldPos.w;
             }
 

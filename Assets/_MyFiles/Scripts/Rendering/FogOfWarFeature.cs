@@ -55,7 +55,7 @@ public class FogOfWarFeature : ScriptableRendererFeature
 
             Camera cam = renderingData.cameraData.camera;
             Matrix4x4 vp = cam.projectionMatrix * cam.worldToCameraMatrix;
-            cmd.SetGlobalMatrix("_InvViewProjMatrix", vp.inverse);
+            cmd.SetGlobalMatrix("_FogOfWar_InvVPMatrix", vp.inverse);
 
             var source = renderingData.cameraData.renderer.cameraColorTargetHandle;
 
