@@ -141,7 +141,11 @@ Shader "Custom/FogOfWar"
                 float distFactor = 1.0 - saturate(dist / _FlashlightParams.y);
                 distFactor *= distFactor;
 
-                return angleFactor * distFactor;
+                // Near-field fade: no scattering very close to the light source
+                // Prevents the "orb" effect when camera is at the flashlight position
+                float nearFade = smoothstep(0.0, 3.0, dist);
+
+                return angleFactor * distFactor * nearFade;
             }
 
             // ---------------------------------------------------------------
@@ -204,7 +208,7 @@ Shader "Custom/FogOfWar"
                         float cosTheta = dot(rayDir, lightToSample);
                         float phase = henyeyGreenstein(cosTheta, _VFogPhaseG);
                         // Clamp phase to prevent blowout when camera is inside the cone
-                        phase = min(phase, 4.0);
+                        phase = min(phase, 1.0);
 
                         float3 inScatter = lightAmount * phase * _VFogScatterIntensity * density;
 
