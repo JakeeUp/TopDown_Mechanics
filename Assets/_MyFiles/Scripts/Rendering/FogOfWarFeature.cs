@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering.RenderGraphModule;
+using UnityEngine.Rendering.RenderGraphModule.Util;
 
 public class FogOfWarFeature : ScriptableRendererFeature
 {
@@ -16,12 +18,14 @@ public class FogOfWarFeature : ScriptableRendererFeature
 
     public override void Create()
     {
-        fogPass = new FogOfWarPass(settings);
+        fogPass = new FogOfWarPass();
+        fogPass.renderPassEvent = settings.renderEvent;
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
         if (settings.fogMaterial == null) return;
+        fogPass.Setup(settings.fogMaterial);
         renderer.EnqueuePass(fogPass);
     }
 
@@ -31,55 +35,42 @@ public class FogOfWarFeature : ScriptableRendererFeature
 
     private class FogOfWarPass : ScriptableRenderPass
     {
-        private readonly Settings settings;
-        private RTHandle tempRT;
+        const string PassName = "FogOfWar";
+        private Material fogMaterial;
 
-        public FogOfWarPass(Settings settings)
+        private static readonly int InvVPMatrixID = Shader.PropertyToID("_FogOfWar_InvVPMatrix");
+
+        public void Setup(Material mat)
         {
-            this.settings = settings;
-            renderPassEvent = settings.renderEvent;
+            fogMaterial = mat;
+            requiresIntermediateTexture = true;
         }
 
-        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
-            var descriptor = renderingData.cameraData.cameraTargetDescriptor;
-            descriptor.depthBufferBits = 0;
-            RenderingUtils.ReAllocateIfNeeded(ref tempRT, descriptor, name: "_FogOfWarTemp");
-        }
+            var resourceData = frameData.Get<UniversalResourceData>();
 
-        public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-            if (settings.fogMaterial == null) return;
+            if (resourceData.isActiveTargetBackBuffer)
+                return;
 
-            CommandBuffer cmd = CommandBufferPool.Get("FogOfWar");
-
-            Camera cam = renderingData.cameraData.camera;
+            // Set the inverse VP matrix for world position reconstruction
+            var cameraData = frameData.Get<UniversalCameraData>();
+            Camera cam = cameraData.camera;
             Matrix4x4 vp = cam.projectionMatrix * cam.worldToCameraMatrix;
-            cmd.SetGlobalMatrix("_FogOfWar_InvVPMatrix", vp.inverse);
+            Shader.SetGlobalMatrix(InvVPMatrixID, vp.inverse);
 
-            var source = renderingData.cameraData.renderer.cameraColorTargetHandle;
+            var source = resourceData.activeColorTexture;
 
-            // Blit through temp RT to avoid same-source issues
-            Blit(cmd, source, tempRT, settings.fogMaterial);
-            Blit(cmd, tempRT, source);
+            var destinationDesc = renderGraph.GetTextureDesc(source);
+            destinationDesc.name = $"CameraColor-{PassName}";
+            destinationDesc.clearBuffer = false;
+            TextureHandle destination = renderGraph.CreateTexture(destinationDesc);
 
-            context.ExecuteCommandBuffer(cmd);
-            CommandBufferPool.Release(cmd);
+            RenderGraphUtils.BlitMaterialParameters blitParams =
+                new(source, destination, fogMaterial, 0);
+            renderGraph.AddBlitPass(blitParams, passName: PassName);
+
+            resourceData.cameraColor = destination;
         }
-
-        public override void OnCameraCleanup(CommandBuffer cmd)
-        {
-            // RTHandle cleanup handled by ReAllocateIfNeeded
-        }
-
-        public void Dispose()
-        {
-            tempRT?.Release();
-        }
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        fogPass?.Dispose();
     }
 }

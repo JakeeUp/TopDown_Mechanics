@@ -1,10 +1,5 @@
 Shader "Custom/FogOfWar"
 {
-    Properties
-    {
-        _MainTex ("Main Texture", 2D) = "white" {}
-    }
-
     SubShader
     {
         Tags
@@ -26,10 +21,7 @@ Shader "Custom/FogOfWar"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
-
-            // Scene color from blit source
-            TEXTURE2D(_MainTex);
-            SAMPLER(sampler_MainTex);
+            #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
             // Set by FogOfWarPass.cs
             float4x4 _FogOfWar_InvVPMatrix;
@@ -40,26 +32,6 @@ Shader "Custom/FogOfWar"
             float4 _FlashlightParams; // x: cos(halfAngle), y: range, z: ambientRadius, w: edgeSoftness
             float _FogDensity;
             float _AmbientIntensity;
-
-            struct Attributes
-            {
-                float4 positionOS : POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            struct Varyings
-            {
-                float4 positionCS : SV_POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            Varyings Vert(Attributes input)
-            {
-                Varyings output;
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
-                output.uv = input.uv;
-                return output;
-            }
 
             float3 ReconstructWorldPos(float2 uv)
             {
@@ -79,8 +51,8 @@ Shader "Custom/FogOfWar"
 
             half4 Frag(Varyings input) : SV_Target
             {
-                float2 uv = input.uv;
-                half4 sceneColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
+                float2 uv = input.texcoord;
+                half4 sceneColor = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, uv);
 
                 float3 worldPos = ReconstructWorldPos(uv);
 
