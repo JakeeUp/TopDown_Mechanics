@@ -18,19 +18,6 @@ public class FlashlightController : MonoBehaviour
     [SerializeField] private float ambientRadius = 3f;
     [SerializeField] private float ambientIntensity = 0.15f;
     [SerializeField] private float edgeSoftness = 0.08f;
-    [SerializeField] private float fogDensity = 0.97f;
-
-    [Header("Volumetric Fog")]
-    [SerializeField] private float volumetricSteps = 48f;
-    [SerializeField] private float densityScale = 1.2f;
-    [SerializeField] private float scatterIntensity = 2.5f;
-    [SerializeField] private float fogBaseY = -1f;
-    [SerializeField] private float fogHeight = 12f;
-    [SerializeField] private float noiseScale = 0.15f;
-    [SerializeField] private float windSpeed = 0.4f;
-    [SerializeField] private float lightAbsorption = 1.5f;
-    [Range(-0.9f, 0.9f)]
-    [SerializeField] private float phaseAsymmetry = 0.6f;
 
     [Header("References")]
     [SerializeField] private CameraManager cameraManager;
@@ -51,19 +38,8 @@ public class FlashlightController : MonoBehaviour
     private static readonly int FlashlightPosID = Shader.PropertyToID("_FlashlightPos");
     private static readonly int FlashlightDirID = Shader.PropertyToID("_FlashlightDir");
     private static readonly int FlashlightParamsID = Shader.PropertyToID("_FlashlightParams");
-    private static readonly int FogDensityID = Shader.PropertyToID("_FogDensity");
     private static readonly int AmbientIntensityID = Shader.PropertyToID("_AmbientIntensity");
     private static readonly int InvVPMatrixID = Shader.PropertyToID("_FogOfWar_InvVPMatrix");
-
-    private static readonly int VFogStepsID = Shader.PropertyToID("_VFogSteps");
-    private static readonly int VFogDensityScaleID = Shader.PropertyToID("_VFogDensityScale");
-    private static readonly int VFogScatterIntensityID = Shader.PropertyToID("_VFogScatterIntensity");
-    private static readonly int VFogBaseYID = Shader.PropertyToID("_VFogBaseY");
-    private static readonly int VFogHeightID = Shader.PropertyToID("_VFogHeight");
-    private static readonly int VFogNoiseScaleID = Shader.PropertyToID("_VFogNoiseScale");
-    private static readonly int VFogWindSpeedID = Shader.PropertyToID("_VFogWindSpeed");
-    private static readonly int VFogLightAbsorptionID = Shader.PropertyToID("_VFogLightAbsorption");
-    private static readonly int VFogPhaseGID = Shader.PropertyToID("_VFogPhaseG");
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -109,19 +85,7 @@ public class FlashlightController : MonoBehaviour
             ambientRadius,
             edgeSoftness
         ));
-        Shader.SetGlobalFloat(FogDensityID, fogDensity);
         Shader.SetGlobalFloat(AmbientIntensityID, ambientIntensity);
-
-        // Volumetric fog params
-        Shader.SetGlobalFloat(VFogStepsID, volumetricSteps);
-        Shader.SetGlobalFloat(VFogDensityScaleID, densityScale);
-        Shader.SetGlobalFloat(VFogScatterIntensityID, scatterIntensity);
-        Shader.SetGlobalFloat(VFogBaseYID, fogBaseY);
-        Shader.SetGlobalFloat(VFogHeightID, fogHeight);
-        Shader.SetGlobalFloat(VFogNoiseScaleID, noiseScale);
-        Shader.SetGlobalFloat(VFogWindSpeedID, windSpeed);
-        Shader.SetGlobalFloat(VFogLightAbsorptionID, lightAbsorption);
-        Shader.SetGlobalFloat(VFogPhaseGID, phaseAsymmetry);
 
         // Set inverse VP matrix for world position reconstruction in the fog shader.
         // This must be done here (not in RecordRenderGraph) because RenderGraph is deferred.
