@@ -37,6 +37,11 @@ public class WeaponHandler : MonoBehaviour
     [SerializeField] private float recoilSpeed = 10f;
     [SerializeField] private float recoilRecoverySpeed = 6f;
 
+    [Header("Ammo")]
+    [SerializeField] private int maxMagazine = 30;
+    [SerializeField] private int reserveAmmo = 90;
+    [SerializeField] private float reloadTime = 2f;
+
     // [Header("Aim Down Sights")]
     // [SerializeField] private Vector3 hipPosition = new Vector3(0.3f, -0.3f, 0.5f);
     // [SerializeField] private Vector3 adsPosition = new Vector3(0f, -0.2f, 0.4f);
@@ -57,6 +62,10 @@ public class WeaponHandler : MonoBehaviour
     private Vector3 currentWeaponPosition;
     private float lineTimer = 0f;
 
+    private int currentMagazine;
+    private bool isReloading = false;
+    private float reloadTimer = 0f;
+
     private CameraManager cameraManager;
 
     // -------------------------------------------------------------------------
@@ -65,6 +74,7 @@ public class WeaponHandler : MonoBehaviour
 
     private void Awake()
     {
+        currentMagazine = maxMagazine;
         cameraManager = GetComponent<CameraManager>();
 
         if (fpsCamera == null)
@@ -82,6 +92,7 @@ public class WeaponHandler : MonoBehaviour
 
     private void Update()
     {
+        HandleReload();
         HandleFullAuto();
         HandleRecoilRecovery();
        // HandleADS();
@@ -94,6 +105,7 @@ public class WeaponHandler : MonoBehaviour
 
     private void HandleFullAuto()
     {
+        if (isReloading) return;
         if (currentFireMode == FireMode.FullAuto && isTriggerHeld && isAiming)
         {
             if (Time.time >= nextFireTime)
@@ -105,8 +117,16 @@ public class WeaponHandler : MonoBehaviour
     {
         if (!isAiming) return;
         if (fpsCamera == null) return;
+        if (isReloading) return;
+        if (currentMagazine <= 0)
+        {
+            Debug.Log("[AMMO] Magazine empty!");
+            if (reserveAmmo > 0) StartReload();
+            return;
+        }
 
         nextFireTime = Time.time + fireRate;
+        currentMagazine--;
 
         if (muzzleFlash != null)
             muzzleFlash.Play();
@@ -144,6 +164,11 @@ public class WeaponHandler : MonoBehaviour
         }
 
         DrawLineTrace(endPoint);
+
+        Debug.Log($"[AMMO] {currentMagazine}/{maxMagazine} | Reserve: {reserveAmmo}");
+
+        if (currentMagazine <= 0 && reserveAmmo > 0)
+            StartReload();
     }
 
     // -------------------------------------------------------------------------
@@ -172,6 +197,40 @@ public class WeaponHandler : MonoBehaviour
             if (lineTimer <= 0f && lineRenderer != null)
                 lineRenderer.enabled = false;
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Reload
+    // -------------------------------------------------------------------------
+
+    private void HandleReload()
+    {
+        if (!isReloading) return;
+
+        reloadTimer -= Time.deltaTime;
+        if (reloadTimer <= 0f)
+            FinishReload();
+    }
+
+    private void StartReload()
+    {
+        if (isReloading) return;
+        if (currentMagazine >= maxMagazine) return;
+        if (reserveAmmo <= 0) return;
+
+        isReloading = true;
+        reloadTimer = reloadTime;
+        Debug.Log($"[RELOAD] Reloading... ({reloadTime}s)");
+    }
+
+    private void FinishReload()
+    {
+        int bulletsToLoad = Mathf.Min(maxMagazine, reserveAmmo);
+        reserveAmmo -= bulletsToLoad;
+        currentMagazine = bulletsToLoad;
+        isReloading = false;
+
+        Debug.Log($"[RELOAD] Complete! {currentMagazine}/{maxMagazine} | Reserve: {reserveAmmo}");
     }
 
     // -------------------------------------------------------------------------
@@ -216,8 +275,15 @@ public class WeaponHandler : MonoBehaviour
     {
         isTriggerHeld = value.isPressed;
 
+        if (isReloading) return;
         if (currentFireMode == FireMode.SemiAuto && value.isPressed && isAiming)
             Shoot();
+    }
+
+    private void OnReload(InputValue value)
+    {
+        if (!value.isPressed) return;
+        StartReload();
     }
 
     private void OnAim(InputValue value)
@@ -243,4 +309,8 @@ public class WeaponHandler : MonoBehaviour
 
     public FireMode CurrentFireMode => currentFireMode;
     public bool IsFullAuto => currentFireMode == FireMode.FullAuto;
+    public int CurrentAmmo => currentMagazine;
+    public int ReserveAmmo => reserveAmmo;
+    public int MaxMagazine => maxMagazine;
+    public bool IsReloading => isReloading;
 }
