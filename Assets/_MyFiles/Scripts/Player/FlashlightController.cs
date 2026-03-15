@@ -12,12 +12,19 @@ public class FlashlightController : MonoBehaviour
     // Inspector Fields
     // -------------------------------------------------------------------------
 
-    [Header("Flashlight Settings")]
+    [Header("Top-Down Flashlight")]
     [SerializeField] private float coneAngle = 30f;
     [SerializeField] private float range = 20f;
+    [SerializeField] private float edgeSoftness = 0.08f;
+
+    [Header("First-Person Flashlight")]
+    [SerializeField] private float fpsConeAngle = 18f;
+    [SerializeField] private float fpsRange = 25f;
+    [SerializeField] private float fpsEdgeSoftness = 0.12f;
+
+    [Header("Shared Settings")]
     [SerializeField] private float ambientRadius = 3f;
     [SerializeField] private float ambientIntensity = 0.15f;
-    [SerializeField] private float edgeSoftness = 0.08f;
 
     [Header("References")]
     [SerializeField] private CameraManager cameraManager;
@@ -40,6 +47,7 @@ public class FlashlightController : MonoBehaviour
     private static readonly int FlashlightParamsID = Shader.PropertyToID("_FlashlightParams");
     private static readonly int AmbientIntensityID = Shader.PropertyToID("_AmbientIntensity");
     private static readonly int InvVPMatrixID = Shader.PropertyToID("_FogOfWar_InvVPMatrix");
+    private static readonly int NearFadeDistID = Shader.PropertyToID("_NearFadeDist");
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -59,17 +67,31 @@ public class FlashlightController : MonoBehaviour
     {
         Vector3 flashlightPos;
         Vector3 flashlightDir;
+        float activeAngle;
+        float activeRange;
+        float activeSoftness;
+        float nearFade;
 
-        if (cameraManager != null && cameraManager.IsAiming)
+        bool isFPS = cameraManager != null && cameraManager.IsAiming;
+
+        if (isFPS)
         {
             flashlightPos = firstPersonPivot.position;
             flashlightDir = firstPersonPivot.forward;
+            activeAngle = fpsConeAngle;
+            activeRange = fpsRange;
+            activeSoftness = fpsEdgeSoftness;
+            nearFade = 0.5f;
         }
         else
         {
             flashlightPos = flashlightHolder.position;
             Vector3 fwd = flashlightHolder.forward;
             flashlightDir = new Vector3(-fwd.x, fwd.y, fwd.z);
+            activeAngle = coneAngle;
+            activeRange = range;
+            activeSoftness = edgeSoftness;
+            nearFade = 3.0f;
         }
 
         // Smooth the direction to prevent jitter
@@ -80,15 +102,15 @@ public class FlashlightController : MonoBehaviour
         Shader.SetGlobalVector(FlashlightPosID, flashlightPos);
         Shader.SetGlobalVector(FlashlightDirID, smoothedDir);
         Shader.SetGlobalVector(FlashlightParamsID, new Vector4(
-            isOn ? Mathf.Cos(coneAngle * Mathf.Deg2Rad) : 1f,
-            isOn ? range : 0f,
+            isOn ? Mathf.Cos(activeAngle * Mathf.Deg2Rad) : 1f,
+            isOn ? activeRange : 0f,
             ambientRadius,
-            edgeSoftness
+            activeSoftness
         ));
         Shader.SetGlobalFloat(AmbientIntensityID, ambientIntensity);
+        Shader.SetGlobalFloat(NearFadeDistID, nearFade);
 
         // Set inverse VP matrix for world position reconstruction in the fog shader.
-        // This must be done here (not in RecordRenderGraph) because RenderGraph is deferred.
         Camera cam = Camera.main;
         if (cam != null)
         {

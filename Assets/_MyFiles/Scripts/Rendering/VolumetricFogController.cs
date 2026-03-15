@@ -8,18 +8,18 @@ using UnityEngine;
 public class VolumetricFogController : MonoBehaviour
 {
     [Header("Fog Volume")]
-    [SerializeField] private float fogDensity = 0.97f;
-    [SerializeField] private float densityScale = 1.2f;
+    [SerializeField] private float fogDensity = 1.0f;
+    [SerializeField] private float densityScale = 2.5f;
     [SerializeField] private float fogBaseY = -1f;
-    [SerializeField] private float fogHeight = 12f;
+    [SerializeField] private float fogHeight = 15f;
 
     [Header("Noise & Animation")]
     [SerializeField] private float noiseScale = 0.15f;
     [SerializeField] private float windSpeed = 0.4f;
 
     [Header("Light Interaction")]
-    [SerializeField] private float scatterIntensity = 2.5f;
-    [SerializeField] private float lightAbsorption = 1.5f;
+    [SerializeField] private float scatterIntensity = 5.0f;
+    [SerializeField] private float lightAbsorption = 2.0f;
     [Range(-0.9f, 0.9f)]
     [SerializeField] private float phaseAsymmetry = 0.6f;
 

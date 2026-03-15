@@ -42,6 +42,7 @@ Shader "Custom/FogOfWar"
             float _VFogLightAbsorption;
             float _VFogPhaseG;
             float _VFogMaxMarchDist;
+            float _NearFadeDist;
 
             // ---------------------------------------------------------------
             // 3D Noise
@@ -141,9 +142,9 @@ Shader "Custom/FogOfWar"
                 float distFactor = 1.0 - saturate(dist / _FlashlightParams.y);
                 distFactor *= distFactor;
 
-                // Near-field fade: no scattering very close to the light source
-                // Prevents the "orb" effect when camera is at the flashlight position
-                float nearFade = smoothstep(0.0, 3.0, dist);
+                // Near-field fade: controlled by FlashlightController per mode
+                // FPS uses 0.5 (tight fade), top-down uses 3.0 (wide fade)
+                float nearFade = smoothstep(0.0, _NearFadeDist, dist);
 
                 return angleFactor * distFactor * nearFade;
             }
