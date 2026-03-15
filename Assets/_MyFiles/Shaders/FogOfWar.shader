@@ -41,6 +41,7 @@ Shader "Custom/FogOfWar"
             float _VFogWindSpeed;
             float _VFogLightAbsorption;
             float _VFogPhaseG;
+            float _VFogMaxMarchDist;
 
             // ---------------------------------------------------------------
             // 3D Noise
@@ -171,8 +172,8 @@ Shader "Custom/FogOfWar"
                 float totalDist = length(rayVec);
                 float3 rayDir = rayVec / max(totalDist, 0.001);
 
-                // Don't march further than the geometry
-                float marchDist = min(totalDist, _FlashlightParams.y * 1.5);
+                // Don't march further than geometry or max distance
+                float marchDist = min(totalDist, _VFogMaxMarchDist);
 
                 int steps = (int)_VFogSteps;
                 float stepSize = marchDist / (float)steps;
@@ -180,10 +181,6 @@ Shader "Custom/FogOfWar"
                 // Jitter ray start to reduce banding artifacts
                 float jitter = frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
                 float3 pos = camPos + rayDir * (stepSize * jitter);
-
-                // Phase function for view-to-light scattering
-                float cosTheta = dot(rayDir, _FlashlightDir);
-                float phase = henyeyGreenstein(cosTheta, _VFogPhaseG);
 
                 // Accumulate along the ray
                 float transmittance = 1.0;
@@ -201,6 +198,14 @@ Shader "Custom/FogOfWar"
 
                         // Flashlight in-scattering at this sample
                         float lightAmount = flashlightIllumination(pos);
+
+                        // Per-sample phase: use direction from light to this sample vs view ray
+                        float3 lightToSample = normalize(pos - _FlashlightPos);
+                        float cosTheta = dot(rayDir, lightToSample);
+                        float phase = henyeyGreenstein(cosTheta, _VFogPhaseG);
+                        // Clamp phase to prevent blowout when camera is inside the cone
+                        phase = min(phase, 4.0);
+
                         float3 inScatter = lightAmount * phase * _VFogScatterIntensity * density;
 
                         // Warm flashlight tint

@@ -25,6 +25,7 @@ public class VolumetricFogController : MonoBehaviour
 
     [Header("Performance")]
     [SerializeField] private float volumetricSteps = 48f;
+    [SerializeField] private float maxMarchDistance = 40f;
 
     // -------------------------------------------------------------------------
     // Shader Property IDs (cached)
@@ -40,6 +41,7 @@ public class VolumetricFogController : MonoBehaviour
     private static readonly int VFogWindSpeedID = Shader.PropertyToID("_VFogWindSpeed");
     private static readonly int VFogLightAbsorptionID = Shader.PropertyToID("_VFogLightAbsorption");
     private static readonly int VFogPhaseGID = Shader.PropertyToID("_VFogPhaseG");
+    private static readonly int VFogMaxMarchDistID = Shader.PropertyToID("_VFogMaxMarchDist");
 
     private void LateUpdate()
     {
@@ -53,5 +55,6 @@ public class VolumetricFogController : MonoBehaviour
         Shader.SetGlobalFloat(VFogWindSpeedID, windSpeed);
         Shader.SetGlobalFloat(VFogLightAbsorptionID, lightAbsorption);
         Shader.SetGlobalFloat(VFogPhaseGID, phaseAsymmetry);
+        Shader.SetGlobalFloat(VFogMaxMarchDistID, maxMarchDistance);
     }
 }
