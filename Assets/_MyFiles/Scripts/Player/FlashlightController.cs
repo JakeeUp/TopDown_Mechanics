@@ -23,7 +23,7 @@ public class FlashlightController : MonoBehaviour
     [Header("References")]
     [SerializeField] private CameraManager cameraManager;
     [SerializeField] private Transform firstPersonPivot;
-    [SerializeField] private Transform playerBody;
+    [SerializeField] private Transform flashlightHolder;
     // -------------------------------------------------------------------------
     // Private State
     // -------------------------------------------------------------------------
@@ -58,15 +58,13 @@ public class FlashlightController : MonoBehaviour
 
         if (cameraManager != null && cameraManager.IsAiming)
         {
-            // FPS mode: flashlight follows where you're looking
             flashlightPos = firstPersonPivot.position;
             flashlightDir = firstPersonPivot.forward;
         }
         else
         {
-            // Top-down mode: use the same direction PlayerController rotates toward
-            flashlightPos = playerBody.position + Vector3.up * 1.0f;
-            flashlightDir = -playerBody.forward;
+            flashlightPos = flashlightHolder.position;
+            flashlightDir = flashlightHolder.forward;
         }
 
         Shader.SetGlobalVector(FlashlightPosID, flashlightPos);
