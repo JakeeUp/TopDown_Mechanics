@@ -29,6 +29,7 @@ public class FlashlightController : MonoBehaviour
     // -------------------------------------------------------------------------
 
     private bool isOn = true;
+    private Vector3 smoothedDir;
 
     // -------------------------------------------------------------------------
     // Shader Property IDs (cached)
@@ -49,6 +50,10 @@ public class FlashlightController : MonoBehaviour
     {
         if (cameraManager == null)
             cameraManager = GetComponent<CameraManager>();
+        if (flashlightHolder != null)
+            smoothedDir = flashlightHolder.forward;
+        else if (firstPersonPivot != null)
+            smoothedDir = firstPersonPivot.forward;
     }
 
     private void LateUpdate()
@@ -68,8 +73,12 @@ public class FlashlightController : MonoBehaviour
             flashlightDir = new Vector3(-fwd.x, fwd.y, fwd.z);
         }
 
+        // Smooth the direction to prevent jitter
+        smoothedDir = Vector3.Lerp(smoothedDir, flashlightDir.normalized, 15f * Time.deltaTime);
+        smoothedDir.Normalize();
+
         Shader.SetGlobalVector(FlashlightPosID, flashlightPos);
-        Shader.SetGlobalVector(FlashlightDirID, flashlightDir.normalized);
+        Shader.SetGlobalVector(FlashlightDirID, smoothedDir);
         Shader.SetGlobalVector(FlashlightParamsID, new Vector4(
             isOn ? Mathf.Cos(coneAngle * Mathf.Deg2Rad) : 1f, // cos(0) = 1 means zero-width cone when off
             isOn ? range : 0f,
