@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Computes flashlight position and direction each frame
@@ -23,6 +24,12 @@ public class FlashlightController : MonoBehaviour
     [SerializeField] private CameraManager cameraManager;
     [SerializeField] private Transform firstPersonPivot;
     [SerializeField] private Transform playerBody;
+
+    // -------------------------------------------------------------------------
+    // Private State
+    // -------------------------------------------------------------------------
+
+    private bool isOn = true;
 
     // -------------------------------------------------------------------------
     // Shader Property IDs (cached)
@@ -51,13 +58,11 @@ public class FlashlightController : MonoBehaviour
 
         if (cameraManager != null && cameraManager.IsAiming)
         {
-            // FPS mode: flashlight follows camera look direction
             flashlightPos = firstPersonPivot.position;
             flashlightDir = firstPersonPivot.forward;
         }
         else
         {
-            // Top-down mode: flashlight from player chest, pointing forward
             flashlightPos = playerBody.position + Vector3.up * 1.0f;
             flashlightDir = playerBody.forward;
         }
@@ -65,12 +70,29 @@ public class FlashlightController : MonoBehaviour
         Shader.SetGlobalVector(FlashlightPosID, flashlightPos);
         Shader.SetGlobalVector(FlashlightDirID, flashlightDir.normalized);
         Shader.SetGlobalVector(FlashlightParamsID, new Vector4(
-            Mathf.Cos(coneAngle * Mathf.Deg2Rad),
-            range,
+            isOn ? Mathf.Cos(coneAngle * Mathf.Deg2Rad) : 1f, // cos(0) = 1 means zero-width cone when off
+            isOn ? range : 0f,
             ambientRadius,
             edgeSoftness
         ));
         Shader.SetGlobalFloat(FogDensityID, fogDensity);
         Shader.SetGlobalFloat(AmbientIntensityID, ambientIntensity);
     }
+
+    // -------------------------------------------------------------------------
+    // Input Callbacks (Send Messages)
+    // -------------------------------------------------------------------------
+
+    private void OnFlashlight(InputValue value)
+    {
+        if (!value.isPressed) return;
+        isOn = !isOn;
+        Debug.Log($"[FLASHLIGHT] {(isOn ? "ON" : "OFF")}");
+    }
+
+    // -------------------------------------------------------------------------
+    // Public Accessors
+    // -------------------------------------------------------------------------
+
+    public bool IsOn => isOn;
 }
