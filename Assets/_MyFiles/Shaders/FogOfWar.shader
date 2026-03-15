@@ -187,9 +187,12 @@ Shader "Custom/FogOfWar"
                 float jitter = frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
                 float3 pos = camPos + rayDir * (stepSize * jitter);
 
+                // Blue-black fog emission (what unlit fog looks like)
+                half3 fogEmission = half3(0.01, 0.01, 0.02);
+
                 // Accumulate along the ray
                 float transmittance = 1.0;
-                float3 scatteredLight = float3(0, 0, 0);
+                float3 inScatterAccum = float3(0, 0, 0);
 
                 for (int i = 0; i < steps; i++)
                 {
@@ -204,27 +207,30 @@ Shader "Custom/FogOfWar"
                         // Flashlight in-scattering at this sample
                         float lightAmount = flashlightIllumination(pos);
 
-                        // Per-sample phase: use direction from light to this sample vs view ray
+                        // Per-sample phase function
                         float3 lightToSample = normalize(pos - _FlashlightPos);
                         float cosTheta = dot(rayDir, lightToSample);
-                        float phase = henyeyGreenstein(cosTheta, _VFogPhaseG);
-                        // Clamp phase to prevent blowout when camera is inside the cone
-                        phase = min(phase, 1.0);
+                        float phase = min(henyeyGreenstein(cosTheta, _VFogPhaseG), 1.0);
 
-                        float3 inScatter = lightAmount * phase * _VFogScatterIntensity * density;
+                        // Light scattered toward camera at this point
+                        float3 stepLight = lightAmount * phase * _VFogScatterIntensity;
 
                         // Warm flashlight tint
-                        inScatter *= float3(1.0, 0.9, 0.75);
+                        stepLight *= float3(1.0, 0.9, 0.75);
 
                         // Small ambient glow near the player
                         float ambientDist = length(pos - _FlashlightPos);
                         float ambient = saturate(1.0 - ambientDist / _FlashlightParams.z)
-                                       * _AmbientIntensity * 0.3;
-                        inScatter += float3(0.02, 0.02, 0.04) * ambient * density;
+                                       * _AmbientIntensity;
+                        stepLight += float3(0.02, 0.02, 0.04) * ambient;
 
-                        // Energy-conserving integration
-                        scatteredLight += transmittance * (1.0 - stepTransmittance)
-                            * inScatter / max(density * _VFogLightAbsorption, 0.001);
+                        // Add fog's own emission (blue-black color in darkness)
+                        stepLight += fogEmission;
+
+                        // Standard volume rendering integration:
+                        // contribution = transmittance * (1 - stepTransmittance) * sourceColor
+                        float3 contribution = transmittance * (1.0 - stepTransmittance) * stepLight;
+                        inScatterAccum += contribution;
 
                         transmittance *= stepTransmittance;
                     }
@@ -235,10 +241,10 @@ Shader "Custom/FogOfWar"
                         break;
                 }
 
-                // Final composite
-                float fogOpacity = (1.0 - transmittance) * _FogDensity;
-                half3 fogColor = half3(0.01, 0.01, 0.02);
-                half3 finalColor = lerp(sceneColor.rgb, fogColor, fogOpacity) + scatteredLight;
+                // Standard volume rendering equation:
+                // final = scene * transmittance + accumulated in-scatter
+                half3 finalColor = sceneColor.rgb * transmittance * _FogDensity
+                                 + inScatterAccum;
 
                 return half4(finalColor, 1.0);
             }
