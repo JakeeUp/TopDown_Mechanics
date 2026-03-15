@@ -24,12 +24,14 @@ public class FlashlightController : MonoBehaviour
     [SerializeField] private CameraManager cameraManager;
     [SerializeField] private Transform firstPersonPivot;
     [SerializeField] private Transform playerBody;
+    [SerializeField] private LayerMask groundLayer;
 
     // -------------------------------------------------------------------------
     // Private State
     // -------------------------------------------------------------------------
 
     private bool isOn = true;
+    private Camera mainCamera;
 
     // -------------------------------------------------------------------------
     // Shader Property IDs (cached)
@@ -50,6 +52,7 @@ public class FlashlightController : MonoBehaviour
     {
         if (cameraManager == null)
             cameraManager = GetComponent<CameraManager>();
+        mainCamera = Camera.main;
     }
 
     private void LateUpdate()
@@ -57,8 +60,28 @@ public class FlashlightController : MonoBehaviour
         Vector3 flashlightPos;
         Vector3 flashlightDir;
 
-        flashlightPos = firstPersonPivot.position;
-        flashlightDir = firstPersonPivot.forward;
+        if (cameraManager != null && cameraManager.IsAiming)
+        {
+            // FPS mode: flashlight follows where you're looking
+            flashlightPos = firstPersonPivot.position;
+            flashlightDir = firstPersonPivot.forward;
+        }
+        else
+        {
+            // Top-down mode: flashlight points toward mouse cursor on ground
+            flashlightPos = playerBody.position + Vector3.up * 1.0f;
+            flashlightDir = playerBody.forward; // fallback
+
+            Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
+            {
+                Vector3 lookTarget = hit.point;
+                lookTarget.y = playerBody.position.y;
+                Vector3 dir = (lookTarget - playerBody.position).normalized;
+                if (dir.sqrMagnitude > 0.001f)
+                    flashlightDir = dir;
+            }
+        }
 
         Shader.SetGlobalVector(FlashlightPosID, flashlightPos);
         Shader.SetGlobalVector(FlashlightDirID, flashlightDir.normalized);
