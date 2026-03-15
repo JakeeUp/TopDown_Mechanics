@@ -33,6 +33,41 @@ Shader "Custom/FogOfWar"
             float _FogDensity;
             float _AmbientIntensity;
 
+            // Procedural noise for organic fog edges
+            float hash(float2 p)
+            {
+                float3 p3 = frac(float3(p.xyx) * 0.1031);
+                p3 += dot(p3, p3.yzx + 33.33);
+                return frac((p3.x + p3.y) * p3.z);
+            }
+
+            float valueNoise(float2 p)
+            {
+                float2 i = floor(p);
+                float2 f = frac(p);
+                f = f * f * (3.0 - 2.0 * f); // smoothstep interpolation
+
+                float a = hash(i);
+                float b = hash(i + float2(1, 0));
+                float c = hash(i + float2(0, 1));
+                float d = hash(i + float2(1, 1));
+
+                return lerp(lerp(a, b, f.x), lerp(c, d, f.x), f.y);
+            }
+
+            float fbm(float2 p)
+            {
+                float value = 0.0;
+                float amplitude = 0.5;
+                for (int i = 0; i < 4; i++)
+                {
+                    value += amplitude * valueNoise(p);
+                    p *= 2.0;
+                    amplitude *= 0.5;
+                }
+                return value;
+            }
+
             float3 ReconstructWorldPos(float2 uv)
             {
                 float depth = SampleSceneDepth(uv);
@@ -77,10 +112,19 @@ Shader "Custom/FogOfWar"
 
                 // --- Composite ---
                 float visibility = max(coneVisibility, ambientVisibility);
+
+                // --- Noise for organic fog edges ---
+                float2 noiseCoord = worldPos.xz * 0.8 + _Time.y * 0.3;
+                float noise = fbm(noiseCoord);
+                // Push noise into the edge region — thickens/thins the fog boundary
+                visibility = saturate(visibility + (noise - 0.5) * 0.3 * saturate(visibility * 3.0));
+
                 float darkness = 1.0 - visibility;
 
                 // Blue-black fog for horror atmosphere
                 half3 fogColor = half3(0.01, 0.01, 0.02);
+                // Slight color variation in the fog itself
+                fogColor += half3(0.005, 0.0, 0.01) * noise;
                 half3 finalColor = lerp(sceneColor.rgb, fogColor, darkness * _FogDensity);
 
                 return half4(finalColor, 1.0);
