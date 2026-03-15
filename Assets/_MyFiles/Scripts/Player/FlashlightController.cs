@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// Computes flashlight position and direction each frame
 /// and pushes the values to global shader properties for the FogOfWar shader.
+/// The flashlight clears volumetric fog in its cone area.
 /// Attach to the same GameObject as CameraManager (the Player root).
 /// </summary>
 public class FlashlightController : MonoBehaviour
@@ -18,10 +19,9 @@ public class FlashlightController : MonoBehaviour
     [SerializeField] private float edgeSoftness = 0.08f;
 
     [Header("First-Person Flashlight")]
-    [SerializeField] private float fpsConeAngle = 18f;
-    [SerializeField] private float fpsRange = 25f;
-    [SerializeField] private float fpsEdgeSoftness = 0.12f;
-    [SerializeField] private Vector3 fpsFlashlightOffset = new Vector3(0.35f, -0.25f, 0.15f);
+    [SerializeField] private float fpsConeAngle = 25f;
+    [SerializeField] private float fpsRange = 30f;
+    [SerializeField] private float fpsEdgeSoftness = 0.1f;
 
     [Header("Shared Settings")]
     [SerializeField] private float ambientRadius = 3f;
@@ -48,7 +48,6 @@ public class FlashlightController : MonoBehaviour
     private static readonly int FlashlightParamsID = Shader.PropertyToID("_FlashlightParams");
     private static readonly int AmbientIntensityID = Shader.PropertyToID("_AmbientIntensity");
     private static readonly int InvVPMatrixID = Shader.PropertyToID("_FogOfWar_InvVPMatrix");
-    private static readonly int NearFadeDistID = Shader.PropertyToID("_NearFadeDist");
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -71,23 +70,16 @@ public class FlashlightController : MonoBehaviour
         float activeAngle;
         float activeRange;
         float activeSoftness;
-        float nearFade;
 
         bool isFPS = cameraManager != null && cameraManager.IsAiming;
 
         if (isFPS)
         {
-            // Offset flashlight to hand position (right + down + slightly forward)
-            // so the cone is visible from the camera's perspective, not a centered orb
-            flashlightPos = firstPersonPivot.position
-                + firstPersonPivot.right * fpsFlashlightOffset.x
-                + firstPersonPivot.up * fpsFlashlightOffset.y
-                + firstPersonPivot.forward * fpsFlashlightOffset.z;
+            flashlightPos = firstPersonPivot.position;
             flashlightDir = firstPersonPivot.forward;
             activeAngle = fpsConeAngle;
             activeRange = fpsRange;
             activeSoftness = fpsEdgeSoftness;
-            nearFade = 0.5f;
         }
         else
         {
@@ -97,7 +89,6 @@ public class FlashlightController : MonoBehaviour
             activeAngle = coneAngle;
             activeRange = range;
             activeSoftness = edgeSoftness;
-            nearFade = 3.0f;
         }
 
         // Smooth the direction to prevent jitter
@@ -114,7 +105,6 @@ public class FlashlightController : MonoBehaviour
             activeSoftness
         ));
         Shader.SetGlobalFloat(AmbientIntensityID, ambientIntensity);
-        Shader.SetGlobalFloat(NearFadeDistID, nearFade);
 
         // Set inverse VP matrix for world position reconstruction in the fog shader.
         Camera cam = Camera.main;

@@ -31,18 +31,15 @@ Shader "Custom/FogOfWar"
             float _FogDensity;
             float _AmbientIntensity;
 
-            // Volumetric ray march params
+            // Volumetric ray march params (set by VolumetricFogController.cs)
             float _VFogSteps;
             float _VFogDensityScale;
-            float _VFogScatterIntensity;
             float _VFogBaseY;
             float _VFogHeight;
             float _VFogNoiseScale;
             float _VFogWindSpeed;
             float _VFogLightAbsorption;
-            float _VFogPhaseG;
             float _VFogMaxMarchDist;
-            float _NearFadeDist;
 
             // ---------------------------------------------------------------
             // 3D Noise
@@ -96,16 +93,14 @@ Shader "Custom/FogOfWar"
             }
 
             // ---------------------------------------------------------------
-            // Fog density at a world position
+            // Base fog density at a world position (before flashlight)
             // ---------------------------------------------------------------
 
             float sampleFogDensity(float3 pos)
             {
-                // Height falloff: densest at base, fades upward
                 float heightFactor = 1.0 - saturate((pos.y - _VFogBaseY) / max(_VFogHeight, 0.01));
                 heightFactor = heightFactor * heightFactor;
 
-                // Animated 3D noise for rolling, wispy fog
                 float3 noisePos = pos * _VFogNoiseScale
                     + float3(_Time.y * _VFogWindSpeed, 0, _Time.y * _VFogWindSpeed * 0.7);
                 float noise = fbm3D(noisePos);
@@ -114,39 +109,32 @@ Shader "Custom/FogOfWar"
             }
 
             // ---------------------------------------------------------------
-            // Henyey-Greenstein phase function (light scattering direction)
+            // How much the flashlight clears fog at a point (0 = no clearing, 1 = fully clear)
             // ---------------------------------------------------------------
 
-            float henyeyGreenstein(float cosTheta, float g)
-            {
-                float g2 = g * g;
-                float denom = 1.0 + g2 - 2.0 * g * cosTheta;
-                return (1.0 - g2) / (4.0 * PI * pow(max(denom, 0.0001), 1.5));
-            }
-
-            // ---------------------------------------------------------------
-            // Flashlight illumination at a point in the volume
-            // ---------------------------------------------------------------
-
-            float flashlightIllumination(float3 pos)
+            float flashlightClearance(float3 pos)
             {
                 float3 toPos = pos - _FlashlightPos;
                 float dist = length(toPos);
                 float3 toPosDir = toPos / max(dist, 0.001);
 
+                // Cone check
                 float cosAngle = dot(toPosDir, _FlashlightDir);
                 float innerCos = _FlashlightParams.x;
                 float outerCos = innerCos - _FlashlightParams.w;
                 float angleFactor = smoothstep(outerCos, innerCos, cosAngle);
 
+                // Distance falloff
                 float distFactor = 1.0 - saturate(dist / _FlashlightParams.y);
                 distFactor *= distFactor;
 
-                // Near-field fade: controlled by FlashlightController per mode
-                // FPS uses 0.5 (tight fade), top-down uses 3.0 (wide fade)
-                float nearFade = smoothstep(0.0, _NearFadeDist, dist);
+                // Ambient clearance around player (can see your feet)
+                float ambientDist = length(pos - _FlashlightPos);
+                float ambientClear = saturate(1.0 - ambientDist / _FlashlightParams.z);
+                ambientClear *= ambientClear;
+                ambientClear *= _AmbientIntensity;
 
-                return angleFactor * distFactor * nearFade;
+                return saturate(max(angleFactor * distFactor, ambientClear));
             }
 
             // ---------------------------------------------------------------
@@ -162,7 +150,7 @@ Shader "Custom/FogOfWar"
             }
 
             // ---------------------------------------------------------------
-            // Fragment: ray march through volumetric fog
+            // Fragment: ray march — flashlight clears fog in its cone
             // ---------------------------------------------------------------
 
             half4 Frag(Varyings input) : SV_Target
@@ -177,62 +165,51 @@ Shader "Custom/FogOfWar"
                 float totalDist = length(rayVec);
                 float3 rayDir = rayVec / max(totalDist, 0.001);
 
-                // Don't march further than geometry or max distance
                 float marchDist = min(totalDist, _VFogMaxMarchDist);
 
                 int steps = (int)_VFogSteps;
                 float stepSize = marchDist / (float)steps;
 
-                // Jitter ray start to reduce banding artifacts
+                // Jitter to reduce banding
                 float jitter = frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
                 float3 pos = camPos + rayDir * (stepSize * jitter);
 
-                // Blue-black fog emission (what unlit fog looks like)
-                half3 fogEmission = half3(0.01, 0.01, 0.02);
+                // Dark blue-black fog color
+                half3 fogColor = half3(0.01, 0.01, 0.02);
 
-                // Accumulate along the ray
                 float transmittance = 1.0;
-                float3 inScatterAccum = float3(0, 0, 0);
+                float3 fogAccum = float3(0, 0, 0);
 
                 for (int i = 0; i < steps; i++)
                 {
-                    float density = sampleFogDensity(pos);
+                    float baseDensity = sampleFogDensity(pos);
 
-                    if (density > 0.001)
+                    if (baseDensity > 0.001)
                     {
-                        // Beer-Lambert extinction
-                        float extinction = density * _VFogLightAbsorption * stepSize;
-                        float stepTransmittance = exp(-extinction);
+                        // Flashlight clears fog in its cone
+                        float clearance = flashlightClearance(pos);
+                        float density = baseDensity * (1.0 - clearance);
 
-                        // Flashlight in-scattering at this sample
-                        float lightAmount = flashlightIllumination(pos);
+                        if (density > 0.001)
+                        {
+                            float extinction = density * _VFogLightAbsorption * stepSize;
+                            float stepTransmittance = exp(-extinction);
 
-                        // Per-sample phase function
-                        float3 lightToSample = normalize(pos - _FlashlightPos);
-                        float cosTheta = dot(rayDir, lightToSample);
-                        float phase = min(henyeyGreenstein(cosTheta, _VFogPhaseG), 1.0);
+                            // Fog contributes its own dark color
+                            float3 contribution = transmittance * (1.0 - stepTransmittance) * fogColor;
+                            fogAccum += contribution;
 
-                        // Light scattered toward camera at this point
-                        float3 stepLight = lightAmount * phase * _VFogScatterIntensity;
+                            transmittance *= stepTransmittance;
+                        }
 
-                        // Warm flashlight tint
-                        stepLight *= float3(1.0, 0.9, 0.75);
-
-                        // Small ambient glow near the player
-                        float ambientDist = length(pos - _FlashlightPos);
-                        float ambient = saturate(1.0 - ambientDist / _FlashlightParams.z)
-                                       * _AmbientIntensity;
-                        stepLight += float3(0.02, 0.02, 0.04) * ambient;
-
-                        // Add fog's own emission (blue-black color in darkness)
-                        stepLight += fogEmission;
-
-                        // Standard volume rendering integration:
-                        // contribution = transmittance * (1 - stepTransmittance) * sourceColor
-                        float3 contribution = transmittance * (1.0 - stepTransmittance) * stepLight;
-                        inScatterAccum += contribution;
-
-                        transmittance *= stepTransmittance;
+                        // Subtle edge glow where fog meets the cleared area
+                        // (light catching the fog boundary)
+                        if (clearance > 0.05 && clearance < 0.95)
+                        {
+                            float edgeGlow = smoothstep(0.0, 0.5, clearance) * smoothstep(1.0, 0.5, clearance);
+                            float3 glow = float3(0.8, 0.7, 0.5) * edgeGlow * baseDensity * 0.15 * transmittance * stepSize;
+                            fogAccum += glow;
+                        }
                     }
 
                     pos += rayDir * stepSize;
@@ -241,10 +218,8 @@ Shader "Custom/FogOfWar"
                         break;
                 }
 
-                // Standard volume rendering equation:
-                // final = scene * transmittance + accumulated in-scatter
-                half3 finalColor = sceneColor.rgb * transmittance * _FogDensity
-                                 + inScatterAccum;
+                // Scene visible through remaining transmittance, fog fills the rest
+                half3 finalColor = sceneColor.rgb * transmittance + fogAccum;
 
                 return half4(finalColor, 1.0);
             }
