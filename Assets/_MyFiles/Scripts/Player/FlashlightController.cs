@@ -21,6 +21,7 @@ public class FlashlightController : MonoBehaviour
     [SerializeField] private float fpsConeAngle = 18f;
     [SerializeField] private float fpsRange = 25f;
     [SerializeField] private float fpsEdgeSoftness = 0.12f;
+    [SerializeField] private Vector3 fpsFlashlightOffset = new Vector3(0.35f, -0.25f, 0.15f);
 
     [Header("Shared Settings")]
     [SerializeField] private float ambientRadius = 3f;
@@ -76,7 +77,12 @@ public class FlashlightController : MonoBehaviour
 
         if (isFPS)
         {
-            flashlightPos = firstPersonPivot.position;
+            // Offset flashlight to hand position (right + down + slightly forward)
+            // so the cone is visible from the camera's perspective, not a centered orb
+            flashlightPos = firstPersonPivot.position
+                + firstPersonPivot.right * fpsFlashlightOffset.x
+                + firstPersonPivot.up * fpsFlashlightOffset.y
+                + firstPersonPivot.forward * fpsFlashlightOffset.z;
             flashlightDir = firstPersonPivot.forward;
             activeAngle = fpsConeAngle;
             activeRange = fpsRange;
