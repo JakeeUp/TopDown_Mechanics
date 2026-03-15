@@ -40,6 +40,7 @@ public class FlashlightController : MonoBehaviour
     private static readonly int FlashlightParamsID = Shader.PropertyToID("_FlashlightParams");
     private static readonly int FogDensityID = Shader.PropertyToID("_FogDensity");
     private static readonly int AmbientIntensityID = Shader.PropertyToID("_AmbientIntensity");
+    private static readonly int InvVPMatrixID = Shader.PropertyToID("_FogOfWar_InvVPMatrix");
 
     // -------------------------------------------------------------------------
     // Unity Lifecycle
@@ -77,6 +78,16 @@ public class FlashlightController : MonoBehaviour
         ));
         Shader.SetGlobalFloat(FogDensityID, fogDensity);
         Shader.SetGlobalFloat(AmbientIntensityID, ambientIntensity);
+
+        // Set inverse VP matrix for world position reconstruction in the fog shader.
+        // This must be done here (not in RecordRenderGraph) because RenderGraph is deferred.
+        Camera cam = Camera.main;
+        if (cam != null)
+        {
+            Matrix4x4 gpuProj = GL.GetGPUProjectionMatrix(cam.projectionMatrix, true);
+            Matrix4x4 vp = gpuProj * cam.worldToCameraMatrix;
+            Shader.SetGlobalMatrix(InvVPMatrixID, vp.inverse);
+        }
     }
 
     // -------------------------------------------------------------------------

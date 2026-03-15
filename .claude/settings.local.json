@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find E:_UnityProjectsTopDown_Mechanics/Assets/_MyFiles -name *input* -o -name *ui* -o -name *UI* -o -name *HUD*)",
+      "Bash(grep -l \"Lvl_MainTesting.unity\" \"E:\\\\_UnityProjects\\\\TopDown_Mechanics/Assets/_MyFiles/Levels/\"*)",
+      "Bash(grep -o m_Name:.* E:_UnityProjectsTopDown_Mechanics/Assets/_MyFiles/Levels/Lvl_MainTesting.unity)",
+      "Bash(find /e/_UnityProjects/TopDown_Mechanics/Library/PackageCache/com.unity.render-pipelines.universal@37e0d4fc2503 -name \"ScriptableRenderPass.cs\" -exec head -200 {})",
+      "Bash(grep -n \"IUnsafeRenderGraphBuilder\\\\|IRasterRenderGraphBuilder\" /e/_UnityProjects/TopDown_Mechanics/Library/PackageCache/com.unity.render-pipelines.universal@37e0d4fc2503/Runtime/Passes/*.cs)"
+    ]
+  }
+}

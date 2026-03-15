@@ -24,7 +24,11 @@ public class FogOfWarFeature : ScriptableRendererFeature
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        if (settings.fogMaterial == null) return;
+        if (settings.fogMaterial == null)
+        {
+            Debug.LogWarning("[FOG] Material is null, skipping pass");
+            return;
+        }
         fogPass.Setup(settings.fogMaterial);
         renderer.EnqueuePass(fogPass);
     }
@@ -38,8 +42,6 @@ public class FogOfWarFeature : ScriptableRendererFeature
         const string PassName = "FogOfWar";
         private Material fogMaterial;
 
-        private static readonly int InvVPMatrixID = Shader.PropertyToID("_FogOfWar_InvVPMatrix");
-
         public void Setup(Material mat)
         {
             fogMaterial = mat;
@@ -51,13 +53,10 @@ public class FogOfWarFeature : ScriptableRendererFeature
             var resourceData = frameData.Get<UniversalResourceData>();
 
             if (resourceData.isActiveTargetBackBuffer)
+            {
+                Debug.LogWarning("[FOG] Active target is back buffer, skipping");
                 return;
-
-            // Set the inverse VP matrix for world position reconstruction
-            var cameraData = frameData.Get<UniversalCameraData>();
-            Camera cam = cameraData.camera;
-            Matrix4x4 vp = cam.projectionMatrix * cam.worldToCameraMatrix;
-            Shader.SetGlobalMatrix(InvVPMatrixID, vp.inverse);
+            }
 
             var source = resourceData.activeColorTexture;
 
