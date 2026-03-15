@@ -57,16 +57,8 @@ public class FlashlightController : MonoBehaviour
         Vector3 flashlightPos;
         Vector3 flashlightDir;
 
-        if (cameraManager != null && cameraManager.IsAiming)
-        {
-            flashlightPos = firstPersonPivot.position;
-            flashlightDir = firstPersonPivot.forward;
-        }
-        else
-        {
-            flashlightPos = playerBody.position + Vector3.up * 1.0f;
-            flashlightDir = -playerBody.forward;
-        }
+        flashlightPos = firstPersonPivot.position;
+        flashlightDir = firstPersonPivot.forward;
 
         Shader.SetGlobalVector(FlashlightPosID, flashlightPos);
         Shader.SetGlobalVector(FlashlightDirID, flashlightDir.normalized);
