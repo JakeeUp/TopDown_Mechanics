@@ -24,8 +24,8 @@ public class FlashlightController : MonoBehaviour
     [SerializeField] private float fpsEdgeSoftness = 0.2f;
 
     [Header("Shared Settings")]
-    [SerializeField] private float ambientRadius = 5f;
-    [SerializeField] private float ambientIntensity = 0.4f;
+    [SerializeField] private float ambientRadius = 4f;
+    [SerializeField] private float ambientIntensity = 0.25f;
 
     [Header("References")]
     [SerializeField] private CameraManager cameraManager;

@@ -179,8 +179,8 @@ Shader "Custom/FogOfWar"
                 float jitter = frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
                 float3 pos = camPos + rayDir * (stepSize * jitter);
 
-                // Fog color: dark blue-grey, not pure black
-                half3 fogColor = half3(0.02, 0.025, 0.04);
+                // Silent Hill style: light grey fog
+                half3 fogColor = half3(0.55, 0.55, 0.58);
 
                 float transmittance = 1.0;
                 float3 fogAccum = float3(0, 0, 0);
@@ -204,11 +204,11 @@ Shader "Custom/FogOfWar"
                             transmittance *= stepT;
                         }
 
-                        // Edge glow at fog/clear boundary
+                        // Subtle edge brightening at fog/clear boundary
                         if (clearance > 0.1 && clearance < 0.9)
                         {
                             float edge = smoothstep(0.0, 0.5, clearance) * smoothstep(1.0, 0.5, clearance);
-                            fogAccum += float3(0.6, 0.55, 0.4) * edge * baseDensity * 0.08 * transmittance * stepSize;
+                            fogAccum += float3(0.7, 0.7, 0.72) * edge * baseDensity * 0.06 * transmittance * stepSize;
                         }
                     }
 

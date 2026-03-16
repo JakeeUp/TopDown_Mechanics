@@ -7,16 +7,16 @@ using UnityEngine;
 public class VolumetricFogController : MonoBehaviour
 {
     [Header("Fog Volume")]
-    [SerializeField] private float densityScale = 0.6f;
+    [SerializeField] private float densityScale = 1.4f;
     [SerializeField] private float fogBaseY = -1f;
-    [SerializeField] private float fogHeight = 8f;
+    [SerializeField] private float fogHeight = 10f;
 
     [Header("Noise & Animation")]
     [SerializeField] private float noiseScale = 0.06f;
-    [SerializeField] private float windSpeed = 0.25f;
+    [SerializeField] private float windSpeed = 0.2f;
 
     [Header("Absorption")]
-    [SerializeField] private float absorption = 0.8f;
+    [SerializeField] private float absorption = 1.2f;
 
     [Header("Performance")]
     [SerializeField] private float volumetricSteps = 32f;
