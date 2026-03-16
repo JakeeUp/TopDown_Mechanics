@@ -98,8 +98,12 @@ Shader "Custom/FogOfWar"
 
             float sampleFogDensity(float3 pos)
             {
-                float heightFactor = 1.0 - saturate((pos.y - _VFogBaseY) / max(_VFogHeight, 0.01));
-                heightFactor = heightFactor * heightFactor;
+                // Gentle height falloff — fog is present at all heights, just slightly
+                // thinner up high. Linear falloff instead of quadratic keeps fog visible
+                // at eye level for FPS.
+                float heightFactor = saturate(1.0 - (pos.y - _VFogBaseY) / max(_VFogHeight, 0.01));
+                // Slight bias so fog is still ~40% dense even at the top
+                heightFactor = lerp(0.4, 1.0, heightFactor);
 
                 float3 noisePos = pos * _VFogNoiseScale
                     + float3(_Time.y * _VFogWindSpeed, 0, _Time.y * _VFogWindSpeed * 0.7);
@@ -114,27 +118,49 @@ Shader "Custom/FogOfWar"
 
             float flashlightClearance(float3 pos)
             {
-                float3 toPos = pos - _FlashlightPos;
-                float dist = length(toPos);
-                float3 toPosDir = toPos / max(dist, 0.001);
+                // Project to XZ plane for cone check — this makes the clearance
+                // work as a vertical column above the cone footprint, so the
+                // top-down camera can see through the fog to the cleared ground.
+                float2 toPosXZ = pos.xz - _FlashlightPos.xz;
+                float2 dirXZ = _FlashlightDir.xz;
+                float dirLenXZ = length(dirXZ);
 
-                // Cone check
-                float cosAngle = dot(toPosDir, _FlashlightDir);
+                float distXZ = length(toPosXZ);
+                float2 toPosNormXZ = toPosXZ / max(distXZ, 0.001);
+                float2 dirNormXZ = dirXZ / max(dirLenXZ, 0.001);
+
+                // Cone angle check on XZ plane
+                float cosAngle = dot(toPosNormXZ, dirNormXZ);
                 float innerCos = _FlashlightParams.x;
                 float outerCos = innerCos - _FlashlightParams.w;
                 float angleFactor = smoothstep(outerCos, innerCos, cosAngle);
 
-                // Distance falloff
-                float distFactor = 1.0 - saturate(dist / _FlashlightParams.y);
+                // Distance falloff on XZ plane
+                float distFactor = 1.0 - saturate(distXZ / _FlashlightParams.y);
                 distFactor *= distFactor;
 
+                float coneClear = angleFactor * distFactor;
+
+                // Also do a 3D cone check for FPS (looking up/down matters)
+                float3 toPos3D = pos - _FlashlightPos;
+                float dist3D = length(toPos3D);
+                float3 toPos3DDir = toPos3D / max(dist3D, 0.001);
+                float cosAngle3D = dot(toPos3DDir, _FlashlightDir);
+                float angleFactor3D = smoothstep(outerCos, innerCos, cosAngle3D);
+                float distFactor3D = 1.0 - saturate(dist3D / _FlashlightParams.y);
+                distFactor3D *= distFactor3D;
+                float cone3DClear = angleFactor3D * distFactor3D;
+
+                // Use whichever clearance is stronger (XZ for top-down, 3D for FPS)
+                float flashClear = max(coneClear, cone3DClear);
+
                 // Ambient clearance around player (can see your feet)
-                float ambientDist = length(pos - _FlashlightPos);
+                float ambientDist = length(pos.xz - _FlashlightPos.xz);
                 float ambientClear = saturate(1.0 - ambientDist / _FlashlightParams.z);
                 ambientClear *= ambientClear;
                 ambientClear *= _AmbientIntensity;
 
-                return saturate(max(angleFactor * distFactor, ambientClear));
+                return saturate(max(flashClear, ambientClear));
             }
 
             // ---------------------------------------------------------------
