@@ -180,7 +180,7 @@ Shader "Custom/FogOfWar"
                 float3 pos = camPos + rayDir * (stepSize * jitter);
 
                 // Silent Hill style: light grey fog
-                half3 fogColor = half3(0.55, 0.55, 0.58);
+                half3 fogColor = half3(0.02, 0.025, 0.04);
 
                 float transmittance = 1.0;
                 float3 fogAccum = float3(0, 0, 0);
@@ -208,7 +208,7 @@ Shader "Custom/FogOfWar"
                         if (clearance > 0.1 && clearance < 0.9)
                         {
                             float edge = smoothstep(0.0, 0.5, clearance) * smoothstep(1.0, 0.5, clearance);
-                            fogAccum += float3(0.7, 0.7, 0.72) * edge * baseDensity * 0.06 * transmittance * stepSize;
+                            fogAccum += float3(0.08, 0.09, 0.14) * edge * baseDensity * 0.06 * transmittance * stepSize;
                         }
                     }
 
