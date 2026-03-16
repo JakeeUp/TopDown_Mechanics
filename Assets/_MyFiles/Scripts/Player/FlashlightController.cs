@@ -14,18 +14,18 @@ public class FlashlightController : MonoBehaviour
     // -------------------------------------------------------------------------
 
     [Header("Top-Down Flashlight")]
-    [SerializeField] private float coneAngle = 30f;
-    [SerializeField] private float range = 20f;
-    [SerializeField] private float edgeSoftness = 0.08f;
+    [SerializeField] private float coneAngle = 35f;
+    [SerializeField] private float range = 25f;
+    [SerializeField] private float edgeSoftness = 0.15f;
 
     [Header("First-Person Flashlight")]
-    [SerializeField] private float fpsConeAngle = 25f;
-    [SerializeField] private float fpsRange = 30f;
-    [SerializeField] private float fpsEdgeSoftness = 0.1f;
+    [SerializeField] private float fpsConeAngle = 30f;
+    [SerializeField] private float fpsRange = 35f;
+    [SerializeField] private float fpsEdgeSoftness = 0.2f;
 
     [Header("Shared Settings")]
-    [SerializeField] private float ambientRadius = 3f;
-    [SerializeField] private float ambientIntensity = 0.15f;
+    [SerializeField] private float ambientRadius = 5f;
+    [SerializeField] private float ambientIntensity = 0.4f;
 
     [Header("References")]
     [SerializeField] private CameraManager cameraManager;
